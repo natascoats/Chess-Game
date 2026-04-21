@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Secret Queen Chess</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- LOBBY SCREEN -->
+  <div id="lobby-screen">
+    <div class="lobby-card">
+      <div class="lobby-crown">♛</div>
+      <h1 class="lobby-title">Secret Queen</h1>
+      <p class="lobby-subtitle">A chess variant of hidden royalty</p>
+
+      <div class="lobby-actions">
+        <button id="btn-new-game" class="btn btn-primary">Create New Game</button>
+
+        <div class="divider"><span>or join existing</span></div>
+
+        <div class="join-row">
+          <input id="join-id-input" class="input" type="text" placeholder="Enter Game ID" maxlength="6" />
+          <button id="btn-join-game" class="btn btn-secondary">Join</button>
+        </div>
+      </div>
+
+      <div class="lobby-rules">
+        <h3>How to Play</h3>
+        <p>Standard chess — with one twist. Each player secretly designates one of their pawns as a hidden queen. Move it like a queen to reveal it and unleash chaos.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="game-screen" class="hidden">
+    <div class="game-layout">
+
+      <!-- BOARD -->
+      <div class="board-wrap">
+        <div id="board" class="board"></div>
+      </div>
+
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="sidebar-top">
+          <div class="sidebar-crown">♛</div>
+          <h2 class="sidebar-title">Secret Queen</h2>
+
+          <div class="game-info">
+            <div class="info-row">
+              <span class="info-label">Game ID</span>
+              <span id="game-id-display" class="info-value mono">—</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">You are</span>
+              <span id="my-color-display" class="info-value"></span>
+            </div>
+          </div>
+
+          <div class="turn-box">
+            <div id="turn-indicator" class="turn-text">—</div>
+          </div>
+
+          <div class="status-box">
+            <p id="status" class="status-text">Welcome.</p>
+          </div>
+        </div>
+
+        <div class="sidebar-mid">
+          <div class="last-move-box">
+            <div class="last-move-label">Opponent's Last Move</div>
+            <div id="last-move" class="last-move-text">No moves yet.</div>
+          </div>
+        </div>
+
+        <div class="sidebar-bottom">
+          <h4 class="rules-title">Rules</h4>
+          <ul class="rules-list">
+            <li>Select a pawn to be your Secret Queen</li>
+            <li>Move it like a queen to reveal it</li>
+            <li>Normal pawn moves keep it hidden</li>
+            <li>Your opponent can't see your secret — until it's too late</li>
+          </ul>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+
+  <!-- Load chess logic (no imports needed, plain script) -->
+  <script src="chess.js"></script>
+  <!-- Load UI + Firebase (ES module) -->
+  <script type="module" src="ui.js"></script>
+
+</body>
+</html>
