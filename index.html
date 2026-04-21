@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Secret Queen Chess</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
 
   <!-- LOBBY SCREEN -->
@@ -31,8 +35,11 @@
 
       <div class="lobby-rules">
         <h3>How to Play</h3>
-        <p>Standard chess — with one twist. Each player secretly designates one of their pawns as a hidden queen. Move it like a queen to reveal it and unleash chaos.</p>
+        <p>Standard chess — with one twist. Each player secretly designates one of their pawns as a hidden queen. Move
+          it like a queen to reveal it and unleash chaos.</p>
       </div>
+
+      <div class="credits">Made by <span>Jacob Bae</span> &amp; <span>Natas Coats</span></div>
     </div>
   </div>
 
@@ -62,6 +69,10 @@
             </div>
           </div>
 
+          <div id="selection-banner" class="selection-banner hidden">
+            <div class="selection-banner-text">✦ Click one of your glowing pawns ✦</div>
+          </div>
+
           <div class="turn-box">
             <div id="turn-indicator" class="turn-text">—</div>
           </div>
@@ -75,6 +86,12 @@
           <div class="last-move-box">
             <div class="last-move-label">Opponent's Last Move</div>
             <div id="last-move" class="last-move-text">No moves yet.</div>
+            <div id="last-move-squares" class="last-move-squares hidden">
+              <span id="last-move-from" class="last-move-sq from-sq"></span>
+              <span class="last-move-arrow">→</span>
+              <span id="last-move-to" class="last-move-sq to-sq"></span>
+            </div>
+            <div id="last-move-reveal-badge" class="last-move-reveal hidden">✦ Secret Queen Revealed!</div>
           </div>
         </div>
 
@@ -87,6 +104,9 @@
             <li>Your opponent can't see your secret — until it's too late</li>
           </ul>
         </div>
+
+        <div class="game-credits">Made by Jacob Bae &amp; Natas Coats</div>
+
       </aside>
 
     </div>
@@ -98,4 +118,5 @@
   <script type="module" src="ui.js"></script>
 
 </body>
+
 </html>
