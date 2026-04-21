@@ -35,6 +35,11 @@ const boardEl = document.getElementById("board");
 const statusEl = document.getElementById("status");
 const turnEl = document.getElementById("turn-indicator");
 const lastMoveEl = document.getElementById("last-move");
+const lastMoveSquaresEl = document.getElementById("last-move-squares");
+const lastMoveFromEl = document.getElementById("last-move-from");
+const lastMoveToEl = document.getElementById("last-move-to");
+const lastMoveRevealBadge = document.getElementById("last-move-reveal-badge");
+const selectionBanner = document.getElementById("selection-banner");
 const gameIdDisplay = document.getElementById("game-id-display");
 const myColorDisplay = document.getElementById("my-color-display");
 
@@ -89,18 +94,23 @@ function updateSidebar() {
   if (phase === "select_white_pawn") {
     turnEl.textContent = "Setup — White's turn";
     if (myColor === "white") {
-      setStatus("Click one of your pawns to designate it as your Secret Queen.");
+      selectionBanner.classList.remove("hidden");
+      setStatus("Designate your Secret Queen — choose wisely.");
     } else {
+      selectionBanner.classList.add("hidden");
       setStatus("Waiting for White to select their Secret Queen pawn...");
     }
   } else if (phase === "select_black_pawn") {
     turnEl.textContent = "Setup — Black's turn";
     if (myColor === "black") {
-      setStatus("Click one of your pawns to designate it as your Secret Queen.");
+      selectionBanner.classList.remove("hidden");
+      setStatus("Designate your Secret Queen — choose wisely.");
     } else {
+      selectionBanner.classList.add("hidden");
       setStatus("Waiting for Black to select their Secret Queen pawn...");
     }
   } else if (phase === "playing") {
+    selectionBanner.classList.add("hidden");
     const isMyTurn = game.currentPlayer === myColor;
     turnEl.textContent = `${capitalize(game.currentPlayer)}'s turn${isMyTurn ? " (You)" : ""}`;
     if (isMyTurn) {
@@ -110,6 +120,7 @@ function updateSidebar() {
     }
     renderLastMove();
   } else if (phase === "game_over") {
+    selectionBanner.classList.add("hidden");
     turnEl.textContent = "Game Over";
   }
 }
@@ -121,19 +132,25 @@ function setStatus(msg) {
 function renderLastMove() {
   if (!game.lastMove) {
     lastMoveEl.textContent = "No moves yet.";
+    lastMoveSquaresEl.classList.add("hidden");
+    lastMoveRevealBadge.classList.add("hidden");
     return;
   }
   const m = game.lastMove;
-  const from = squareLabel(m.from);
-  const to = squareLabel(m.to);
-  let text = `${capitalize(m.color)}'s ${m.pieceType}: ${from} → ${to}`;
-  if (m.wasReveal) text += " ✦ Secret Queen Revealed!";
-  lastMoveEl.textContent = text;
+  lastMoveEl.textContent = `${capitalize(m.color)}'s ${m.pieceType}`;
+  lastMoveFromEl.textContent = squareLabel(m.from);
+  lastMoveToEl.textContent = squareLabel(m.to);
+  lastMoveSquaresEl.classList.remove("hidden");
+  if (m.wasReveal) {
+    lastMoveRevealBadge.classList.remove("hidden");
+  } else {
+    lastMoveRevealBadge.classList.add("hidden");
+  }
   lastMoveHighlight = { from: m.from, to: m.to };
 }
 
 function squareLabel([row, col]) {
-  const files = ["a","b","c","d","e","f","g","h"];
+  const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
   return `${files[col]}${8 - row}`;
 }
 
@@ -173,12 +190,11 @@ function renderBoard() {
       // Base color
       square.classList.add((row + col) % 2 === 0 ? "light" : "dark");
 
-      // Last move highlight
+      // Last move highlight — separate from/to classes for distinct styling
       if (lastMoveHighlight) {
         const { from, to } = lastMoveHighlight;
-        if ((from[0] === row && from[1] === col) || (to[0] === row && to[1] === col)) {
-          square.classList.add("last-move");
-        }
+        if (from[0] === row && from[1] === col) square.classList.add("last-move-from");
+        if (to[0] === row && to[1] === col) square.classList.add("last-move-to");
       }
 
       // Selected square
@@ -205,16 +221,26 @@ function renderBoard() {
       if (piece) {
         const pieceEl = document.createElement("div");
         pieceEl.className = `piece ${piece.color}`;
-        // Show secret queen indicator only to its owner
-        let symbol = PIECE_UNICODE[piece.color][piece.type];
+        const symbol = PIECE_UNICODE[piece.color][piece.type];
+
+        // Secret queen owner glow
         if (piece.isSecretQueen && !piece.isRevealed && piece.color === myColor) {
           pieceEl.classList.add("secret-queen");
         }
+
+        // Pulsing selectable highlight during selection phase
+        const isSelectPhase =
+          (phase === "select_white_pawn" && myColor === "white") ||
+          (phase === "select_black_pawn" && myColor === "black");
+        if (isSelectPhase && piece.color === myColor && piece.type === "Pawn") {
+          square.classList.add("secret-selectable");
+        }
+
         pieceEl.textContent = symbol;
         square.appendChild(pieceEl);
       }
 
-      // Coordinate label
+      // Coordinate labels
       if (col === 0) {
         const rankLabel = document.createElement("span");
         rankLabel.className = "coord rank";
@@ -224,7 +250,7 @@ function renderBoard() {
       if (row === 7) {
         const fileLabel = document.createElement("span");
         fileLabel.className = "coord file";
-        fileLabel.textContent = ["a","b","c","d","e","f","g","h"][col];
+        fileLabel.textContent = ["a", "b", "c", "d", "e", "f", "g", "h"][col];
         square.appendChild(fileLabel);
       }
 
@@ -255,12 +281,21 @@ function handleSquareClick(row, col) {
 function trySelectSecretPawn(pos, color) {
   const piece = game.board.getPieceAt(pos);
   if (!piece || piece.color !== color || piece.type !== "Pawn") {
-    setStatus(`${capitalize(color)}: please click one of your own pawns.`);
+    setStatus(`${capitalize(color)}: please click one of your glowing pawns.`);
     return;
   }
   piece.isSecretQueen = true;
+
+  // Flash the chosen square before pushing
+  const squareEl = boardEl.querySelector(`[data-row="${pos[0]}"][data-col="${pos[1]}"]`);
+  if (squareEl) {
+    squareEl.classList.add("secret-chosen");
+    setTimeout(() => squareEl.classList.remove("secret-chosen"), 800);
+  }
+  setStatus(`✦ Secret Queen designated. Let the game begin.`);
+
   const newPhase = color === "white" ? "select_black_pawn" : "playing";
-  pushGameState(gameId, game, newPhase);
+  setTimeout(() => pushGameState(gameId, game, newPhase), 400);
 }
 
 function handleGameplayClick(pos) {
